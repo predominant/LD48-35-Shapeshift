@@ -58,9 +58,17 @@ namespace ShapeShift
             this.EndGamePanel.SetActive(true);
         }
 
+        public void HideEndGame()
+        {
+            this.EndGamePanel.SetActive(false);
+        }
+
         public void Restart()
         {
+            GameController.Health = 100f;
+            GameController.Score = 0f;
             Seed = (int)Random.Range(0, 500);
+            this.HideEndGame();
             SceneManager.LoadScene("Level1");
         }
 

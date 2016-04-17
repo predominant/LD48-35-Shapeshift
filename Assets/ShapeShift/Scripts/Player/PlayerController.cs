@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using ShapeShift;
+using UnityEngine.Analytics;
 
 namespace ShapeShift.Player
 {
@@ -36,6 +38,7 @@ namespace ShapeShift.Player
         public RigidbodyConstraints2D RocketConstraints;
         public PlayerClass PlayerClass = PlayerClass.Square;
 
+        private bool _alive = true;
         private bool _grounded = false;
         private bool _handlersRegistered = false;
         private Rigidbody2D _rigidbody;
@@ -352,10 +355,24 @@ namespace ShapeShift.Player
 
         private void Death(bool success = false)
         {
+            if (!this._alive)
+                return;
+
+            this._alive = false;
             this.UnregisterHandlers();
             this._rigidbody.isKinematic = true;
             this._rigidbody.velocity = Vector2.zero;
             this._currentSpeed = 0f;
+
+#if UNITY_ANALYTICS
+            Debug.Log(Analytics.CustomEvent("Death", new Dictionary<string, object>
+            {
+                { "PlayerClass", this.PlayerClass.ToString() },
+                { "Score", (int)GameController.Score },
+                { "Health", (int)GameController.Health },
+                { "Success", success }
+            }));
+#endif
 
             this.GameController.ShowEndGame(success);
         }
